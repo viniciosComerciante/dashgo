@@ -1,14 +1,56 @@
 import { Flex, Button, Stack } from "@chakra-ui/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "../components/Form/Input";
+import * as yup from "yup";
+import {} from "@hookform/resolvers";
+import { useCallback } from "react";
 
 type SignInFormData = {
   email: string;
   password: string;
 };
 
+const validationSchema = yup.object({
+  firstName: yup.string().required("Required"),
+  lastName: yup.string().required("Required"),
+});
+
+const useYupValidationResolver = (validationSchema) =>
+  useCallback(
+    async (data) => {
+      try {
+        const values = await validationSchema.validate(data, {
+          abortEarly: false,
+        });
+
+        return {
+          values,
+          errors: {},
+        };
+      } catch (errors) {
+        return {
+          values: {},
+          errors: errors.inner.reduce(
+            (allErrors, currentError) => ({
+              ...allErrors,
+              [currentError.path]: {
+                type: currentError.type ?? "validation",
+                message: currentError.message,
+              },
+            }),
+            {}
+          ),
+        };
+      }
+    },
+    [validationSchema]
+  );
+
 export default function SignIn() {
-  const { register, handleSubmit, formState } = useForm();
+  const resolver = useYupValidationResolver(validationSchema);
+  const { register, handleSubmit, formState } = useForm({ resolver });
+
+  const { errors } = formState;
 
   const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -33,13 +75,15 @@ export default function SignIn() {
             name="email"
             label="E-mail"
             type="email"
-            {...register("email")}
+            {...register("email", { required: "E-mail obrigatório" })}
+            error={errors.email}
           />
           <Input
             name="password"
             label="Senha"
             type="password"
-            {...register("password")}
+            error={errors.password}
+            {...register("password", { required: "Password obrigatório!" })}
           />
         </Stack>
         <Button
