@@ -2,7 +2,7 @@ import { Flex, Button, Stack } from "@chakra-ui/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "../components/Form/Input";
 import * as yup from "yup";
-import { useCallback } from "react";
+import { useYupValidationResolver } from "../hooks/useYupValidationResolver";
 
 type SignInFormData = {
   email: string;
@@ -13,37 +13,6 @@ const validationSchema = yup.object({
   email: yup.string().required("E-mail Obrigatório").email("E-mail Inválido"),
   password: yup.string().required("Senha obrigatória"),
 });
-
-const useYupValidationResolver = (validationSchema) =>
-  useCallback(
-    async (data) => {
-      try {
-        const values = await validationSchema.validate(data, {
-          abortEarly: false,
-        });
-
-        return {
-          values,
-          errors: {},
-        };
-      } catch (errors) {
-        return {
-          values: {},
-          errors: errors.inner.reduce(
-            (allErrors, currentError) => ({
-              ...allErrors,
-              [currentError.path]: {
-                type: currentError.type ?? "validation",
-                message: currentError.message,
-              },
-            }),
-            {}
-          ),
-        };
-      }
-    },
-    [validationSchema]
-  );
 
 export default function SignIn() {
   const resolver = useYupValidationResolver(validationSchema);
@@ -74,7 +43,7 @@ export default function SignIn() {
             name="email"
             label="E-mail"
             type="email"
-            {...register("email", { required: "E-mail obrigatório" })}
+            {...register("email")}
             error={errors.email}
           />
           <Input
@@ -82,7 +51,7 @@ export default function SignIn() {
             label="Senha"
             type="password"
             error={errors.password}
-            {...register("password", { required: "Password obrigatório!" })}
+            {...register("password")}
           />
         </Stack>
         <Button
