@@ -2,7 +2,6 @@ import { Flex, Button, Stack } from "@chakra-ui/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "../components/Form/Input";
 import * as yup from "yup";
-import {} from "@hookform/resolvers";
 import { useCallback } from "react";
 
 type SignInFormData = {
@@ -11,8 +10,8 @@ type SignInFormData = {
 };
 
 const validationSchema = yup.object({
-  firstName: yup.string().required("Required"),
-  lastName: yup.string().required("Required"),
+  email: yup.string().required("E-mail Obrigatório").email("E-mail Inválido"),
+  password: yup.string().required("Senha obrigatória"),
 });
 
 const useYupValidationResolver = (validationSchema) =>
