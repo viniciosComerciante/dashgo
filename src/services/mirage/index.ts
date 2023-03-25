@@ -47,8 +47,6 @@ export function makeServer() {
           pageEnd
         );
 
-        console.log(users);
-
         return new Response(
           200,
           {
@@ -60,6 +58,7 @@ export function makeServer() {
         );
       });
       this.post("/users");
+      this.get("/users/:id");
       //reset namespace to prevent next api folder conflict
       this.namespace = "";
       this.passthrough();
